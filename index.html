@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Waharoa Carving Zoom</title>
+  <link rel="icon" href="SBHS_logo.svg" />
+  <!-- Preload the high-res image to ensure it loads early -->
+  <link rel="preload" as="image" href="High Res.png">
+  <!-- Font Awesome icons -->
+  <script src="https://kit.fontawesome.com/0cecbc8ff8.js" crossorigin="anonymous"></script>
+  <script src="https://kit.fontawesome.com/7703c8ece0.js" crossorigin="anonymous"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
 
@@ -18,7 +23,6 @@
       height: 100%;
       user-select: none;
     }
-
     #container {
       position: relative;
       width: 100vw;
@@ -28,18 +32,41 @@
       align-items: center;
       overflow: hidden;
     }
-
-    #carving {
-      max-width: none;
-      max-height: 100vh;  /* override scale limits */
-      height: auto;
-      width: auto;
-      max-height: 100%;
-      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    /* Wrapper that holds both images and is subject to our zoom transform */
+    #carvingWrapper {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       transform-origin: center center;
-      z-index: 1;
+      /* Set to 1s transition */
+      transition: transform 1s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
     }
-
+    /* Both images are stacked */
+    #carvingWrapper img {
+      position: absolute;
+      max-width: none;
+      max-height: 100%;
+      width: auto;
+      height: auto;
+      pointer-events: none;
+      backface-visibility: hidden;
+      transform: translateZ(0);
+    }
+    /* Low-res image stays visible */
+    #lowRes {
+      opacity: 1;
+      transition: opacity 0s;
+    }
+    /* High-res image is preloaded but hidden initially; no opacity transition so the toggle is instant */
+    #highRes {
+      opacity: 0;
+      transition: opacity 0s;
+    }
+    /* Marker styles remain the same */
     .marker {
       position: absolute;
       width: 14px;
@@ -47,46 +74,44 @@
       background-color: white;
       border-radius: 50%;
       transform: translate(-50%, -50%) scale(0);
-      transition: transform 0.6s ease-in-out, background-color 0.3s;
+      transition: transform 0.3s ease-in-out, background-color 0.3s;
       cursor: pointer;
       z-index: 2;
       border: 2px solid white;
     }
-
     .marker.visible {
       transform: translate(-50%, -50%) scale(1);
       background-color: transparent;
     }
-
     .marker:hover {
       transform: translate(-50%, -50%) scale(1.4);
     }
-
     .tooltip {
       position: absolute;
       background: white;
       color: black;
-      padding: 6px 12px;
+      padding: 6px 8px;
+      letter-spacing: 1px;
       border-radius: 4px;
       font-size: 12px;
       white-space: nowrap;
-      transform: translate(calc(-100% - 10px), -50%);
       opacity: 0;
-      transition: opacity 0.3s, transform 0.3s;
-      left: -10px;
+      transition: opacity 0.4s ease, transform 0.4s ease;
       top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
     }
-
     .marker:hover .tooltip {
       opacity: 1;
-      transform: translate(calc(-100% - 10px), -50%);
+      transform: translateX(140%) translateY(-50%);
     }
-
     #infoBox {
       position: absolute;
-      font-size: 1.35em;
+      font-size: 1.3em;
+      letter-spacing: 0.75px;
       bottom: 0;
-      width: 70%;
+      width: 30%;
       background-color: rgba(0, 0, 0, 0.85);
       color: white;
       padding: 20px;
@@ -94,67 +119,100 @@
       text-align: center;
       z-index: 999;
       line-height: 35px;
-      padding-top: 20px;
+      flex-direction: column;
+      justify-content: center;
     }
-
     #navButtons {
       position: absolute;
-      top: 10px;
-      right: 10px;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%);
       z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
-
+    .reset i {
+      font-size: 2.5em;
+    }
     button {
-      background-color: white;
+      background: none;
       border: none;
-      padding: 10px 15px;
-      margin: 5px;
-      border-radius: 5px;
+      padding: 0px 15px;
       cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+    button:hover {
+      transform: scale(1.3);
+    }
+    i {
+      color: white;
+      font-size: 2em;
+    }
+    h2 {
+      margin-top: 60px;
     }
   </style>
 </head>
-
 <body>
   <div id="container">
-    <img id="carving" src="Low Res.png" alt="Carving" />
+    <div id="carvingWrapper">
+      <img id="lowRes" src="LowRes.png" alt="Carving LowRes">
+      <img id="highRes" src="HighRes.png" alt="Carving HighRes">
+    </div>
     <div id="overlay"></div>
     <div id="infoBox"></div>
     <div id="navButtons">
-      <button onclick="prevStory()">Back</button>
-      <button onclick="nextStory()">Next</button>
-      <button onclick="resetView()">Reset View</button>
+      <button onclick="prevStory()">
+        <i class="fa-solid fa-arrow-left"></i>
+      </button>
+      <div class="reset">
+        <button onclick="resetView()">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+      <button onclick="nextStory()">
+        <i class="fa-solid fa-arrow-right"></i>
+      </button>
     </div>
   </div>
-
   <script>
-    const carving = document.getElementById("carving");
+    const carvingWrapper = document.getElementById("carvingWrapper");
+    const highRes = document.getElementById("highRes");
     const infoBox = document.getElementById("infoBox");
     const overlay = document.getElementById("overlay");
     const container = document.getElementById("container");
     let markers = [];
-    let currentIndex = -1;
-
+    let currentIndex = 0;
+    
     const stories = [
-      { title: "Don. G. Grant", text: "Rector 1950-1963.", x: 23, y: 75 },
-      { title: "Thomas 'Toby' Pearce", text: "Rector 1904-1929.", x: 23, y: 60 },
-      { title: "John Page", text: "Physical Education Teacher, Service from 1913-1952.", x: 23, y: 38 },
-      { title: "Raparapa", text: "This figure is known as a Manaia.", x: 23, y: 28 },
-      { title: "Kotuku", text: "Kotuku is seen as purity.", x: 31, y: 17 },
-      { title: "Kokako", text: "Kokako helped Maui slow the sun.", x: 35.5, y: 13 },
-      { title: "Toroa", text: "Toroa is known for traveling the world.", x: 40.5, y: 9.5 },
-      { title: "Koruru", text: "The figure represents enlightenment.", x: 51, y: 8 },
-      { title: "He Puawaitanga", text: "The expansion of life.", x: 61, y: 10.5 },
-      { title: "He Turinga", text: "Two Koru representing Tuākana and Teīna.", x: 65.5, y: 13.75 },
-      { title: "He Kakano", text: "Raperape e toru representing events.", x: 69.75, y: 18 },
-      { title: "Raparapa", text: "This figure is known as a Manaia.", x: 76.5, y: 28 },
-      { title: "Arthur .J. Deaker", text: "Maths and History Teacher, 1922-1965.", x: 76.5, y: 38 },
-      { title: "George .H. Uttley", text: "Rector 1930-1945.", x: 76.5, y: 60 },
-      { title: "Coldstream", text: "The journey of students.", x: 76.5, y: 75 },
+    { title: "Don. G. Grant", text: "Rector 1950-1963. Don Grant served in the military in World War II. He was responsible for saving 260 men and even carried one on his shoulders. He was a very strict but fair man. The mere in his hand is the representation of his milatry background and the reason for him being at the bottom of the carving is to replicate the action of carrying the school values and the bravery he showed when saving the life of a fellow soilder.", x: 23, y: 75 },
+      { title: `Thomas ‘Toby’ Pearce`, text: "Rector 1904-1929. Thomas Pearce was the longest-serving Rector here at Southland Boys’ High School. He was a very strong-minded man and brought the OLD SCHOOL 1925 into the NEW SCHOOL in 1926. His essential quality was his unlimited knowledge of the background of all the students. Depicted in his carved figure is a hand which is the only one that is adorned with surface decoration and represents how he was always there to give a helping hand where he could, especially in poverty or illness.", x: 23, y: 60 },
+      { title: "John Page", text: "Physical Education Teacher, Service from 1913-1952. John Page was a friendly, fun and courageous teacher who always had the student's best interests in mind. He was a slender man and very passionate about his subject area. It was said that even at an old age he was able to perform activities that a middle age person or teenager would find hard to do. Embedded in the carved figure of John is a child which depicts how his attributes as a Physical Education Teacher were admired and how he as a teacher passed those attributes down to his students.", x: 23, y: 38 },
+      { title: "Raparapa", text: "This figure is known as a Manaia and is seen as a spiritual guardian. It represents the Staff, Parents and the Community.", x: 23, y: 28 },
+
+      { title: "Kotuku", text: "Kotuku is seen as purity, the school value is Honesty/Pononga", x: 31, y: 17 },
+      { title: "Kokako", text: "Kokako was known for helping Maui slow the sun down by providing water to him during his quest, the school value is Responsibility/Kawenga", x: 35.5, y: 13 },
+      { title: "Toroa", text: "Toroa is a bird that travels around the world to reach their breeding grounds of the Chatham Islands and the Taiaroa Head on the Otago Peninsula, the school value is Perseverance/Hiringa", x: 40.5, y: 9.5 },
+      { title: "Koruru", text: "There are three parts that have been brought together to make the koruru a whole. The name of this figure is Tane-nui-a-rangi who travelled to the upper realm to obtain Nga Kete Matauranga, the 3 baskets of knowledge. On the right-hand side facing you is Te Po, the potential being/knowledge. In the middle is Te Kore, the nothingness, hence the reason why this part is not carved. On the left-hand side facing you is Te Ao Marama, the enlightenment/the world of light", x: 51, y: 8 },
+      { title: "He Puawaitanga", text: "This pattern is a raperape e rua and has been given the meaning, the expansion of life as we grow from Tamariki to Pākeke, the school value we have used is Respect/Whakaute.", x: 61, y: 10.5 },
+      { title: "He Turinga", text: "The patterns are two Koru representing Tuākana and teīna, the school value we have used is Compassion/Aroha", x: 65.5, y: 13.75 },
+      { title: "He Kakano", text: "This pattern is a raperape e toru and represents the many events our students are involved in, the school value we have used is Service/Whakaritengamahi", x: 69.75, y: 18 },
+
+      { title: "Raparapa", text: "This figure is known as a Manaia and is seen as a spiritual guardian. It represents the Staff, Parents and the Community.", x: 76.5, y: 28 },
+      { title: "Arthur .J. Deaker", text: "Maths and History Teacher, 1922-1965. Arthur Deaker was known for promoting the arts and culture as a respected pathway in life and vocation during the time he was at Southland Boys’ High School. He served over 40 years at Southland Boys’ High and was an Athletics and tennis coach. The Koauau that the carved figure of Deaker is holding is a representation of the importance that he placed on arts and culture in boys' education at this school.", x: 76.5, y: 38 },
+      { title: "George .H. Uttley", text: "Rector 1930-1945. George Uttley was known for his passion towards sport and his work ethic. The Toki that the carved figure of Uttley is holding identifies how strong his work ethic was and how he was valued by his colleagues for this work ethic. This is an attribute that we all wish for our students.", x: 76.5, y: 60 },  
+      { title: "Coldstream", text: "Coldstream was named after a stream that flowed through Southland Boys’ High School before the main building was erected. The Tuna that starts in the mouth represents an Oral Tradition that we have here at Southland Boys’ High School, and now that we have this taonga at the entrance of the school it is our vision that our school's history will be passed down from senior students to younger students and visitors of the school. It is also a representation of the journey of our students and is the pathway to enlightenment/education. Coldstream is also at the bottom of the Amo to signify the connection to our turangawaewae.", x: 76.5, y: 75 },
+      // You can add more stories here.
     ];
 
+    // Optional: Ensure highRes is loaded before enabling interactivity.
+    highRes.onload = function() {
+      console.log("High resolution image loaded.");
+      // You could enable marker click events here if needed.
+    };
+
     function createMarkers() {
-      const fragment = document.createDocumentFragment(); // Create a document fragment to batch appends
       stories.forEach((story, i) => {
         const marker = document.createElement("div");
         marker.className = "marker";
@@ -165,6 +223,7 @@
         tooltip.className = "tooltip";
         tooltip.innerText = story.title;
 
+        // Position the tooltip based on the marker's x position.
         if (story.x > 75) {
           tooltip.style.transform = "translate(10px, -50%)";
           tooltip.style.left = "110%";
@@ -175,10 +234,9 @@
 
         marker.appendChild(tooltip);
         marker.onclick = () => zoomTo(i);
-        fragment.appendChild(marker); // Append the marker to the fragment
-        markers.push(marker); // Push marker to markers array for later use
+        container.appendChild(marker);
+        markers.push(marker);
       });
-      document.getElementById("container").appendChild(fragment); // Append all markers at once
     }
 
     function showMarkers() {
@@ -191,46 +249,64 @@
 
     function zoomTo(index) {
       const story = stories[index];
-      const zoomScale = 4;
+      const zoomScale = 3.5;
       hideMarkers();
 
       const containerWidth = container.clientWidth;
       const containerHeight = container.clientHeight;
       const marker = markers[index];
       const markerRect = marker.getBoundingClientRect();
-      const carvingRect = carving.getBoundingClientRect();
 
+      // Calculate offsets needed to center the marker in the viewport.
       const offsetX = (containerWidth / 2) - (markerRect.left + markerRect.width / 2);
       const offsetY = (containerHeight / 2) - (markerRect.top + markerRect.height / 2);
 
-      const zoomTranslateX = offsetX - (offsetX * -0.50);
-      const zoomTranslateY = offsetY - (offsetY * 0.20);
+      carvingWrapper.style.transformOrigin = `${story.x}% ${story.y}%`;
+      carvingWrapper.style.transform = `scale(${zoomScale}) translate3d(${offsetX / zoomScale}px, ${offsetY / zoomScale}px, 0)`;
 
-      carving.style.transformOrigin = `${story.x}% ${story.y}%`;
-      carving.style.transform = `scale(${zoomScale}) translate(${zoomTranslateX / zoomScale}px, ${zoomTranslateY / zoomScale}px)`;
 
+      // Instantly reveal the high-res image.
+      highRes.style.opacity = 1;
+       
+
+      // Dynamically position the infoBox.
+      const isLeftHalf = markerRect.left < containerWidth / 2;
+      infoBox.style.right = isLeftHalf ? "0px" : "auto";
+      infoBox.style.left = isLeftHalf ? "auto" : "0px";
+      infoBox.style.width = "30%";
+      infoBox.style.height = "100%";
+      infoBox.style.textAlign = "left";
       infoBox.innerHTML = `<h2>${story.title}</h2><p>${story.text}</p>`;
-      infoBox.style.display = "block";
-    }
+      infoBox.style.display = "flex";
 
-    createMarkers(); // Initialize markers on page load
-
-    function prevStory() {
-      currentIndex = currentIndex > 0 ? currentIndex - 1 : stories.length - 1;
-      zoomTo(currentIndex);
+      currentIndex = index;
     }
 
     function nextStory() {
-      currentIndex = currentIndex < stories.length - 1 ? currentIndex + 1 : 0;
+      currentIndex = (currentIndex + 1) % stories.length;
+      zoomTo(currentIndex);
+    }
+
+    function prevStory() {
+      currentIndex = (currentIndex - 1 + stories.length) % stories.length;
       zoomTo(currentIndex);
     }
 
     function resetView() {
-      carving.style.transform = "scale(1) translate(0, 0)";
+      carvingWrapper.style.transform = "scale(1) translate3d(0, 0, 0)";
       infoBox.style.display = "none";
-      showMarkers();
+      if (overlay) overlay.style.display = "none";
+      currentIndex = -1;
+      setTimeout(() => showMarkers(), 1000); // Match the 1s transition duration.
+
+      // Instantly hide the high-res image.
+      highRes.style.opacity = 0;
     }
+
+    window.onload = () => {
+      createMarkers();
+      showMarkers();
+    };
   </script>
 </body>
-
 </html>
