@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Waharoa Carving Zoom</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
+
+    html,
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: black;
+      overflow: hidden;
+      font-family: "Montserrat", sans-serif;
+      height: 100%;
+      user-select: none;
+    }
+
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    #carving {
+      max-width: none;
+      max-height: 100vh;  /* override scale limits */
+      height: auto;
+      width: auto;
+      max-height: 100%;
+      transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+      transform-origin: center center;
+      z-index: 1;
+    }
+
+    .marker {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background-color: white;
+      border-radius: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: transform 0.6s ease-in-out, background-color 0.3s;
+      cursor: pointer;
+      z-index: 2;
+      border: 2px solid white;
+    }
+
+    .marker.visible {
+      transform: translate(-50%, -50%) scale(1);
+      background-color: transparent;
+    }
+
+    .marker:hover {
+      transform: translate(-50%, -50%) scale(1.4);
+    }
+
+    .tooltip {
+      position: absolute;
+      background: white;
+      color: black;
+      padding: 6px 12px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      transform: translate(calc(-100% - 10px), -50%);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+      left: -10px;
+      top: 50%;
+    }
+
+    .marker:hover .tooltip {
+      opacity: 1;
+      transform: translate(calc(-100% - 10px), -50%);
+    }
+
+    #infoBox {
+      position: absolute;
+      font-size: 1.35em;
+      bottom: 0;
+      width: 70%;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+      padding: 20px;
+      display: none;
+      text-align: center;
+      z-index: 999;
+      line-height: 35px;
+      padding-top: 20px;
+    }
+
+    #navButtons {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 1000;
+    }
+
+    button {
+      background-color: white;
+      border: none;
+      padding: 10px 15px;
+      margin: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="container">
+    <img id="carving" src="Low Res.png" alt="Carving" />
+    <div id="overlay"></div>
+    <div id="infoBox"></div>
+    <div id="navButtons">
+      <button onclick="prevStory()">Back</button>
+      <button onclick="nextStory()">Next</button>
+      <button onclick="resetView()">Reset View</button>
+    </div>
+  </div>
+
+  <script>
+    const carving = document.getElementById("carving");
+    const infoBox = document.getElementById("infoBox");
+    const overlay = document.getElementById("overlay");
+    const container = document.getElementById("container");
+    let markers = [];
+    let currentIndex = -1;
+
+    const stories = [
+      { title: "Don. G. Grant", text: "Rector 1950-1963.", x: 23, y: 75 },
+      { title: "Thomas 'Toby' Pearce", text: "Rector 1904-1929.", x: 23, y: 60 },
+      { title: "John Page", text: "Physical Education Teacher, Service from 1913-1952.", x: 23, y: 38 },
+      { title: "Raparapa", text: "This figure is known as a Manaia.", x: 23, y: 28 },
+      { title: "Kotuku", text: "Kotuku is seen as purity.", x: 31, y: 17 },
+      { title: "Kokako", text: "Kokako helped Maui slow the sun.", x: 35.5, y: 13 },
+      { title: "Toroa", text: "Toroa is known for traveling the world.", x: 40.5, y: 9.5 },
+      { title: "Koruru", text: "The figure represents enlightenment.", x: 51, y: 8 },
+      { title: "He Puawaitanga", text: "The expansion of life.", x: 61, y: 10.5 },
+      { title: "He Turinga", text: "Two Koru representing Tuākana and Teīna.", x: 65.5, y: 13.75 },
+      { title: "He Kakano", text: "Raperape e toru representing events.", x: 69.75, y: 18 },
+      { title: "Raparapa", text: "This figure is known as a Manaia.", x: 76.5, y: 28 },
+      { title: "Arthur .J. Deaker", text: "Maths and History Teacher, 1922-1965.", x: 76.5, y: 38 },
+      { title: "George .H. Uttley", text: "Rector 1930-1945.", x: 76.5, y: 60 },
+      { title: "Coldstream", text: "The journey of students.", x: 76.5, y: 75 },
+    ];
+
+    function createMarkers() {
+      const fragment = document.createDocumentFragment(); // Create a document fragment to batch appends
+      stories.forEach((story, i) => {
+        const marker = document.createElement("div");
+        marker.className = "marker";
+        marker.style.top = story.y + "%";
+        marker.style.left = story.x + "%";
+
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip";
+        tooltip.innerText = story.title;
+
+        if (story.x > 75) {
+          tooltip.style.transform = "translate(10px, -50%)";
+          tooltip.style.left = "110%";
+        } else {
+          tooltip.style.transform = "translate(calc(-100% - 10px), -50%)";
+          tooltip.style.left = "-10px";
+        }
+
+        marker.appendChild(tooltip);
+        marker.onclick = () => zoomTo(i);
+        fragment.appendChild(marker); // Append the marker to the fragment
+        markers.push(marker); // Push marker to markers array for later use
+      });
+      document.getElementById("container").appendChild(fragment); // Append all markers at once
+    }
+
+    function showMarkers() {
+      markers.forEach(m => m.classList.add("visible"));
+    }
+
+    function hideMarkers() {
+      markers.forEach(m => m.classList.remove("visible"));
+    }
+
+    function zoomTo(index) {
+      const story = stories[index];
+      const zoomScale = 4;
+      hideMarkers();
+
+      const containerWidth = container.clientWidth;
+      const containerHeight = container.clientHeight;
+      const marker = markers[index];
+      const markerRect = marker.getBoundingClientRect();
+      const carvingRect = carving.getBoundingClientRect();
+
+      const offsetX = (containerWidth / 2) - (markerRect.left + markerRect.width / 2);
+      const offsetY = (containerHeight / 2) - (markerRect.top + markerRect.height / 2);
+
+      const zoomTranslateX = offsetX - (offsetX * -0.50);
+      const zoomTranslateY = offsetY - (offsetY * 0.20);
+
+      carving.style.transformOrigin = `${story.x}% ${story.y}%`;
+      carving.style.transform = `scale(${zoomScale}) translate(${zoomTranslateX / zoomScale}px, ${zoomTranslateY / zoomScale}px)`;
+
+      infoBox.innerHTML = `<h2>${story.title}</h2><p>${story.text}</p>`;
+      infoBox.style.display = "block";
+    }
+
+    createMarkers(); // Initialize markers on page load
+
+    function prevStory() {
+      currentIndex = currentIndex > 0 ? currentIndex - 1 : stories.length - 1;
+      zoomTo(currentIndex);
+    }
+
+    function nextStory() {
+      currentIndex = currentIndex < stories.length - 1 ? currentIndex + 1 : 0;
+      zoomTo(currentIndex);
+    }
+
+    function resetView() {
+      carving.style.transform = "scale(1) translate(0, 0)";
+      infoBox.style.display = "none";
+      showMarkers();
+    }
+  </script>
+</body>
+
+</html>
