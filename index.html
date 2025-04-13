@@ -7,7 +7,7 @@
   <title>Waharoa Carving</title>
   <link rel="icon" href="SBHS_logo.svg" />
   <!-- Preload the high-res image to ensure it loads early -->
-  <link rel="preload" as="image" href="High Res.png">
+  <link rel="preload" as="image" href="HighRes copy.png">
   <!-- Font Awesome icons -->
   <script src="https://kit.fontawesome.com/0cecbc8ff8.js" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/7703c8ece0.js" crossorigin="anonymous"></script>
@@ -38,7 +38,8 @@
     /* Wrapper that holds both images and is subject to our zoom transform */
     #carvingWrapper {
       position: relative;
-      width: 890px;
+      width: 100%; /* Set your preferred max image width */
+      aspect-ratio: 890 / 2500;      
       height: 100%;
       display: flex;
       justify-content: center;
@@ -59,6 +60,7 @@
       pointer-events: none;
       backface-visibility: hidden;
       transform: translateZ(0);
+      object-fit: contain;
     }
 
     /* Low-res image stays visible */
@@ -291,7 +293,7 @@
   <div id="container">
     <div id="carvingWrapper">
       <img id="lowRes" src="LowRes.png" alt="Carving LowRes">
-      <img id="highRes" src="HighRes.png" alt="Carving HighRes">
+      <img id="highRes" src="HighRes copy.png" alt="Carving HighRes">
     </div>
     <div id="overlay"></div>
     <div id="audioControl">
@@ -356,8 +358,8 @@
       stories.forEach((story, i) => {
         const marker = document.createElement("div");
         marker.className = "marker";
-        marker.style.top = story.y + "%";
-        marker.style.left = story.x + "%";
+        marker.style.left = `${story.x}%`;
+        marker.style.top = `${story.y}%`;
 
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip";
@@ -379,6 +381,25 @@
       });
     }
 
+//     function createMarkers() {
+//   stories.forEach((story, index) => {
+//     const marker = document.createElement('div');
+//     marker.className = 'marker visible';
+//     marker.style.left = `${story.x}%`;
+//     marker.style.top = `${story.y}%`;
+
+//     const tooltip = document.createElement('div');
+//     tooltip.className = 'tooltip';
+//     tooltip.textContent = story.title;
+
+//     marker.appendChild(tooltip);
+//     marker.addEventListener('click', () => showStory(index));
+
+//     carvingWrapper.appendChild(marker);
+//     markers.push(marker);
+//   });
+// }
+
     function showMarkers() {
       markers.forEach(m => m.classList.add("visible"));
     }
@@ -389,7 +410,7 @@
 
     function zoomTo(index) {
       const story = stories[index];
-      const zoomScale = 3.5;
+      const zoomScale = 3.75;
       hideMarkers();
       nav.style.display = "flex";
 
