@@ -106,7 +106,7 @@
       font-size: 1.3em;
       letter-spacing: 0.75px;
       bottom: 0;
-      width: 30%;
+      width: 500px;
       left: 0;
       right: unset;
       background-color: rgba(0, 0, 0, 0.85);
@@ -310,9 +310,23 @@
     let currentIndex = 0;
 
     const stories = [
-      { title: "Don G. Grant", text: "Don G. Grant’s contribution to the school and community." },
-      { title: "School Values", text: "This part embodies school values." },
-      { title: "Ranginui", text: "Ranginui the Sky Father watches from above." }
+    { title: "Don. G. Grant", text: "Rector 1950-1963. Don Grant served in the military in World War II. He was responsible for saving 260 men and even carried one on his shoulders. He was a very strict but fair man. The mere in his hand is the representation of his military background and the reason for him being at the bottom of the carving is to replicate the action of carrying the school values and the bravery he showed when saving the life of a fellow soldier.", },
+      { title: `Thomas ‘Toby’ Pearce`, text: "Rector 1904-1929. Thomas Pearce was the longest-serving Rector here at Southland Boys’ High School. He was a very strong-minded man and brought the OLD SCHOOL 1925 into the NEW SCHOOL in 1926. His essential quality was his unlimited knowledge of the background of all the students. Depicted in his carved figure is a hand which is the only one that is adorned with surface decoration and represents how he was always there to give a helping hand where he could, especially in poverty or illness.", },
+      { title: "John Page", text: "Physical Education Teacher. Service from 1913-1952. John Page was a friendly, fun and courageous teacher who always had the student's best interests in mind. He was a slender man and very passionate about his subject area. It was said that even at an old age, he could perform activities that a middle-aged person or teenager would find hard to do. Embedded in the carved figure of John is a child, which depicts how his attributes as a Physical Education Teacher were admired and how he as a teacher passed those attributes down to his students." },
+      { title: "Raparapa", text: "This figure is known as a Manaia and is seen as a spiritual guardian. It represents the Staff, Parents and the Community." },
+
+      { title: "Kotuku", text: "Kotuku is seen as purity, the school value is Honesty/Pononga",},
+      { title: "Kokako", text: "Kokako was known for helping Maui slow the sun down by providing water to him during his quest, the school value is Responsibility/Kawenga", },
+      { title: "Toroa", text: "Toroa is a bird that travels around the world to reach their breeding grounds of the Chatham Islands and the Taiaroa Head on the Otago Peninsula, the school value is Perseverance/Hiringa",},
+      { title: "Koruru", text: "There are three parts that have been brought together to make the Koruru a whole. The name of this figure is Tane-nui-a-rangi who travelled to the upper realm to obtain Nga Kete Matauranga, the 3 baskets of knowledge. On the right-hand side facing you is Te Po, the potential being/knowledge. In the middle is Te Kore, the nothingness, hence the reason why this part is not carved. On the left-hand side facing you is Te Ao Marama, the enlightenment/the world of light",},
+      { title: "He Puawaitanga", text: "This pattern is a raperape e rua and has been given the meaning, the expansion of life as we grow from Tamariki to Pākeke, the school value we have used is Respect/Whakaute.",},
+      { title: "He Turinga", text: "The patterns are two Koru representing Tuākana and teīna, the school value we have used is Compassion/Aroha" },
+      { title: "He Kakano", text: "This pattern is a raperape e toru and represents the many events our students are involved in, the school value we have used is Service/Whakaritengamahi",},
+
+      { title: "Raparapa", text: "This figure is known as a Manaia and is seen as a spiritual guardian. It represents the Staff, Parents and the Community.",},
+      { title: "Arthur .J. Deaker", text: "Maths and History Teacher, 1922-1965. Arthur Deaker was known for promoting the arts and culture as a respected pathway in life and vocation during the time he was at Southland Boys’ High School. He served over 40 years at Southland Boys’ High and was an Athletics and tennis coach. The Koauau that the carved figure of Deaker is holding is a representation of the importance that he placed on arts and culture in boys' education at this school.",},
+      { title: "George .H. Uttley", text: "Rector 1930-1945. George Uttley was known for his passion towards sport and his work ethic. The Toki that the carved figure of Uttley is holding identifies how strong his work ethic was and how he was valued by his colleagues for this work ethic. This is an attribute that we all wish for our students."},  
+      { title: "Coldstream", text: "Coldstream was named after a stream that flowed through Southland Boys’ High School before the main building was erected. The Tuna that starts in the mouth represents an Oral Tradition that we have here at Southland Boys’ High School, and now that we have this taonga at the entrance of the school it is our vision that our school's history will be passed down from senior students to younger students and visitors of the school. It is also a representation of the journey of our students and is the pathway to enlightenment/education. Coldstream is also at the bottom of the Amo to signify the connection to our turangawaewae.",},
     ];
 
     // Replace with your image's actual size
@@ -322,9 +336,25 @@
     };
 
     const markerPositions = [
-      { x: 100, y: 2600 }, // Don G. Grant
-      { x: 1200, y: 1300 },  // School Values
-      { x: 5000, y: 1200 }   // Ranginui
+      { x: 150, y: 5500 }, // Don G. Grant
+      { x: 150, y: 4200 }, // Thomas Pearce
+      { x: 150, y: 2700 }, // John Page
+
+      { x: 500, y: 1650 }, // Raparapa
+
+      { x: 1150, y: 1150 }, // Kotuku
+      { x: 1700, y: 880 }, // Kokako
+      { x: 2300, y: 650 }, // Toroa
+      { x: 3600, y: 900 }, // Koruru
+      { x: 4850, y: 730 }, // He Puawaitanga
+      { x: 5450, y: 980 }, // He Turinga
+      { x: 5950, y: 1250 }, // He Kakano
+
+      { x: 6600, y: 1750 }, // Raparapa
+
+      { x: 6800, y: 2700 }, // Arthur .J. Deaker
+      { x: 6780, y: 4200 }, // George .H. Uttley
+      { x: 6750, y: 5300 }, // Coldstream
     ];
 
     function createMarkers() {
