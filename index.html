@@ -6,252 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Waharoa Carving</title>
   <link rel="icon" href="SBHS_logo.svg" />
-  <!-- Preload the high-res image to ensure it loads early -->
   <link rel="preload" as="image" href="HighRes copy.png">
   <!-- Font Awesome icons -->
   <script src="https://kit.fontawesome.com/0cecbc8ff8.js" crossorigin="anonymous"></script>
   <script src="https://kit.fontawesome.com/7703c8ece0.js" crossorigin="anonymous"></script>
-  <style>
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,200;1,200&display=swap');    
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&display=swap');
-
-    html,
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: black;
-      overflow: hidden;
-      height: 100%;
-      user-select: none;
-    }
-
-    #container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-    }
-
-    #carvingWrapper {
-      width: 100vw;
-      height: 100vh;
-      position: relative;
-      background: black;
-    }
-
-    #carvingImage {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      max-width: 90%;
-      max-height: 100%;
-      transform: translate(-50%, -50%);
-      object-fit: contain;
-      transition: transform 0.8s ease;
-    }
-
-
-
-    /* Marker styles remain the same */
-    .marker {
-      position: absolute;
-      width: 14px;
-      height: 14px;
-      background-color: white;
-      border-radius: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: transform 0.3s ease-in-out, background-color 0.3s;
-      cursor: pointer;
-      z-index: 2;
-      border: 2px solid white;
-    }
-
-    .marker.visible {
-      transform: translate(-50%, -50%) scale(1);
-      background-color: transparent;
-    }
-
-    .marker:hover {
-      transform: translate(-50%, -50%) scale(1.4);
-    }
-
-    .tooltip {
-      position: absolute;
-      background: white;
-      color: black;
-      padding: 6px 8px;
-      letter-spacing: 1px;
-      border-radius: 4px;
-      font-size: 10px;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      top: 50%;
-      left: 50%;
-      transform: translate(0%, -50%);
-      pointer-events: none;
-      font-family: 'Cinzel';
-    }
-
-    .marker:hover .tooltip {
-      opacity: 1;
-      transform: translateX(30%) translateY(-50%);
-    }
-
-    #infoBox {
-      position: absolute;
-      font-size: 1.3em;
-      letter-spacing: 0.75px;
-      bottom: 0;
-      width: 500px;
-      left: 0;
-      right: unset;
-      background-color: rgba(0, 0, 0, 0.85);
-      color: white;
-      padding: 20px;
-      display: none;
-      text-align: center;
-      z-index: 999;
-      line-height: 35px;
-      flex-direction: column;
-      justify-content: center;
-      font-family: 'montserrat';
-      height: 100%;
-    }
-
-    #navButtons {
-      position: absolute;
-      bottom: 100px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-      display: none;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .reset i {
-      font-size: 2.5em;
-    }
-
-    button {
-      background: none;
-      border: none;
-      padding: 0px 25px;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    button:hover {
-      transform: scale(1.3);
-    }
-
-    i {
-      color: white;
-      font-size: 2em;
-    }
-
-    h2 {
-      font-family: 'cinzel';
-      font-weight: 100;
-    }
-
-    #introOverlay {
-      position: fixed;
-      z-index: 10000;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background-color: black;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      box-sizing: border-box;
-      transition: all 1s ease;
-      overflow: scroll;
-      padding: 0px;
-    }
-
-    #introContent {
-      max-width: 80%;
-      font-size: 1em;
-    }
-
-    #introOverlay h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
-      font-family: 'cinzel';
-      font-weight: 100;
-    }
-
-    #introOverlay p{
-      font-family: 'montserrat';
-      letter-spacing: 1px;
-    }
-
-    #introOverlay button {
-      color: white;
-      margin-top: 10px;
-    padding: 0;
-    line-height: 1;
-    background: transparent;
-    font-size: 0.8rem;
-    font-weight: 500;
-    letter-spacing: .1em;
-    text-transform: uppercase;
-    width: 8.4375rem;
-    height: 3.6875rem;
-    border: 1px solid hsla(0, 0%, 100%, .2);
-    border-radius: 500px;
-    cursor: pointer;
-    transition: border-color .7s;
-    }
-
-    #introOverlay button i {
-      margin-left: 10px;
-      font-size: 20px;
-    }
-
-
-    #introOverlay button:hover {
-      transform: scale(1) !important;
-      border: 1px solid hsl(0, 0%, 100%);
-    }
-
-    #introImage {
-      max-width: 100%;
-      height: 400px;
-      margin-bottom: 20px;
-      box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
-    }
-
-    #audioControl {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 1000;
-}
-
-#audioControl button {
-  background: none;
-  border: none;
-  cursor: pointer;
-}
-
-#audioControl i {
-  font-size: 1.8em;
-  color: white;
-  transition: transform 0.3s;
-}
-
-
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
@@ -259,7 +18,7 @@
   <div id="introOverlay">
     <div id="introContent">
       <h1>Welcome to the Waharoa Carving</h1>
-      <img src="1CarvingGigapixel-low resolution-6x-faceai.jpg" alt="Waharoa Carving" id="introImage">
+      <img src="Intro Carving.jpg" alt="Waharoa Carving" id="introImage">
 
       <p>This Waharoa was carved by respected carvers <strong>Greg McDonald and Greg Houkamau</strong> in 2012. It represents the
         journey of students through Southland Boys' High School, integrating school values, important figures, and
@@ -275,7 +34,7 @@
   </audio>
   <div id="container">
     <div id="carvingWrapper">
-        <img id="carvingImage" src="HighRes copy.png" alt="Māori Carving" />
+        <img id="carvingImage" src="HighRes.png" alt="Māori Carving" />
         <div id="storyText"></div>
       </div>
     <div id="audioControl">
@@ -284,19 +43,22 @@
       </button>
     </div>
     
+    <button id="backIntro" onclick="backToIntro()">Back To Intro</button>
+
     <div id="infoBox"></div>
     <div id="navButtons">
-      <button onclick="prevStory()">
+   
+      <!-- <button onclick="prevStory()">
         <i class="fa-solid fa-arrow-left"></i>
-      </button>
+      </button> -->
       <div class="reset">
         <button onclick="resetView()">
           <i class="fa-solid fa-rotate-left"></i>
         </button>
       </div>
-      <button onclick="nextStory()">
+      <!-- <button onclick="nextStory()">
         <i class="fa-solid fa-arrow-right"></i>
-      </button>
+      </button> -->
     </div>
   </div>
   <script>
@@ -367,7 +129,7 @@
         tooltip.innerText = stories[i].title;
         marker.appendChild(tooltip);
 
-        if (pos.x > 3500) {
+        if (pos.x < 3500) {
           tooltip.style.transform = "translate(10px, -50%)";
           tooltip.style.left = "110%";
         } else {
@@ -414,7 +176,7 @@
 
     function zoomToMarker(index) {
   const pos = markerPositions[index];
-  const scale = 4; // Adjust this zoom level if needed
+  const scale = 3.75; // Adjust this zoom level if needed
 
   const imageRect = carvingImage.getBoundingClientRect();
   const wrapperRect = carvingWrapper.getBoundingClientRect();
@@ -460,14 +222,17 @@ function showStory(index) {
   infoBox.innerHTML = `<h2>${story.title}</h2><p>${story.text}</p>`;
   infoBox.style.display = "flex";
 
-  if (markerRect.left < screenCenter) {
+  if (window.innerWidth <= 900) {
+    infoBox.style.left = "0";
+    infoBox.style.right = "0";
+  } else if (markerRect.left < screenCenter) {
     // Marker is on left — info box goes on right
     infoBox.style.left = "unset";
     infoBox.style.right = "0";
   } else {
-    // Marker is on right — info box goes on left
-    infoBox.style.right = "unset";
-    infoBox.style.left = "0";
+    infoBox.style.top = "0";
+  infoBox.style.left = "0";
+  infoBox.style.right = "0";
   }
 }
 
@@ -502,6 +267,21 @@ function prevStory() {
       }, 1000);
     }
 
+    function backToIntro() {
+  const intro = document.getElementById("introOverlay");
+  intro.style.display = "flex";
+  intro.style.opacity = 1;
+  intro.style.scale = 1;
+
+  infoBox.style.display = "none";
+  nav.style.display = "none";
+
+  setTimeout(() => {
+    hideMarkers();
+  }, 1000);
+}
+
+
 
     window.onload = () => {
   const audio = document.getElementById("bgAudio");
@@ -509,6 +289,8 @@ function prevStory() {
 
   // Sync the icon with current mute state (should be unmuted initially)
   icon.className = audio.muted ? "fa-solid fa-volume-xmark" : "fa-solid fa-volume-high";
+
+  alert("This website is best viewed on a desktop or tablet. It is not optimised for mobile devices.");
 
 };
   </script>
